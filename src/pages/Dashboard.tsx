@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Clock,
 } from 'lucide-react';
+import DashboardSidebar from '../components/DashboardSidebar';
 
 const Dashboard = () => {
   const stats = [
@@ -27,54 +28,29 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="md:flex md:items-center md:justify-between mb-8">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              Dashboard
-            </h2>
-          </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4">
-            <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-              <Plus className="h-5 w-5 mr-2" />
-              Create New Menu
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div className="flex h-screen bg-gray-50">
+      <DashboardSidebar />
+      <div className="flex-1 ml-64 p-8 overflow-y-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white overflow-hidden shadow rounded-lg"
+              className="bg-white p-6 rounded-lg shadow-sm"
             >
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <stat.icon className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        {stat.label}
-                      </dt>
-                      <dd className="flex items-baseline">
-                        <div className="text-2xl font-semibold text-gray-900">
-                          {stat.value}
-                        </div>
-                        <div className="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-                          {stat.trend}
-                        </div>
-                      </dd>
-                    </dl>
-                  </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">{stat.value}</p>
                 </div>
+                <div className="bg-indigo-50 rounded-full p-3">
+                  <stat.icon className="h-6 w-6 text-indigo-600" />
+                </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm font-medium text-green-600">{stat.trend}</span>
               </div>
             </motion.div>
           ))}
@@ -90,7 +66,6 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium text-gray-900">Analytics Overview</h3>
               <div className="flex items-center space-x-2">
-                <button className="text-sm text-gray-600 hover:text-gray-900">Week</button>
                 <button className="text-sm font-medium text-indigo-600">Month</button>
                 <button className="text-sm text-gray-600 hover:text-gray-900">Year</button>
               </div>
@@ -113,7 +88,7 @@ const Dashboard = () => {
               <div className="flow-root">
                 <ul className="-mb-8">
                   {recentActivity.map((activity, index) => (
-                    <li key={index}>
+                    <li key={activity.time}>
                       <div className="relative pb-8">
                         {index !== recentActivity.length - 1 && (
                           <span

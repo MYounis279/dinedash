@@ -22,7 +22,7 @@ const LandingPage = () => {
                 Create beautiful, interactive QR code menus that enhance your customer's dining experience
                 and streamline your business operations.
               </p>
-              <Link to="/signup" className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors inline-block">
+              <Link to="/signup/" className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors inline-block">
                 Start Free Trial
               </Link>
             </motion.div>
@@ -97,7 +97,7 @@ const LandingPage = () => {
           <h2 className="text-3xl font-bold text-white mb-8">
             Ready to Transform Your Menu Experience?
           </h2>
-          <Link to="/signup" className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors inline-block">
+          <Link to="/signup/" className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors inline-block">
             Get Started Now
           </Link>
         </div>

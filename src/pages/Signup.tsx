@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Building } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,12 @@ const Signup = () => {
     confirmPassword: '',
   });
 
+  const navigate = useNavigate();
+
+  // Add loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -18,10 +26,72 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setIsLoading(true);
+    setErrorMsg('');
+    
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMsg("Passwords don't match!");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Sign up the user with redirect URL
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: 'http://localhost:5173/dashboard',
+          data: {
+            full_name: formData.fullName,
+            business_name: formData.businessName,
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('Auth error:', authError);
+        setErrorMsg(authError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!authData.user) {
+        setErrorMsg('No user data received');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store email for the verification page
+      localStorage.setItem('userEmail', formData.email);
+
+      // Create a record in the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          full_name: formData.fullName,
+          business_name: formData.businessName,
+          email: formData.email,
+        });
+
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        setErrorMsg(profileError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // Redirect to verify email page
+      navigate('/verify-email');
+    } catch (error) {
+      console.error('Error creating account:', error);
+      setErrorMsg(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -155,12 +225,20 @@ const Signup = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
               >
-                Create Account
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </div>
           </form>
+
+          {/* Add error message display */}
+          {errorMsg && (
+            <div className="mt-4 text-sm text-red-600 text-center">
+              {errorMsg}
+            </div>
+          )}
 
           <div className="mt-6">
             <div className="relative">
@@ -169,7 +247,7 @@ const Signup = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Already have an account? <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</a>
+                  Already have an account? <button onClick={() => navigate('/login')} className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</button>
                 </span>
               </div>
             </div>
